@@ -1,13 +1,15 @@
 package main
 
 import (
-  "fmt"
-  "net/http"
-
-  "github.com/gorilla/mux"
+  "os"
 )
 
 func main() {
-  r := mux.NewRouter()
-  r.HandFunc("/", handle)
+  a := App{}
+  a.Initialize(
+    os.Getenv("DB_USERNAME"),
+    os.Getenv("DB_PASSWORD"),
+    os.Getenv("DB_NAME"))
+
+  a.Run(":8080")
 }
