@@ -1,15 +1,15 @@
 package main
 
-import (
-  "os"
-)
+var DB_USERNAME string
+var DB_PASSWORD string
+var DB_NAME string
 
 func main() {
   a := App{}
   a.Initialize(
-    os.Getenv("DB_USERNAME"),
-    os.Getenv("DB_PASSWORD"),
-    os.Getenv("DB_NAME"))
+    DB_USERNAME,
+    DB_PASSWORD,
+    DB_NAME)
 
   a.Run(":8080")
 }
