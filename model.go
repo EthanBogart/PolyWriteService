@@ -21,13 +21,15 @@ func (u *user) createUser(db *sql.DB) error {
     "INSERT INTO users(name, email) VALUES('%s', '%s')",
     u.Name, u.Email)
 	_, err := db.Exec(statement)
+  if err != nil {
+      return err
+  }
 
   if err != nil {
     return err
   }
 
-	err = db.QueryRow("SELECT LAST_INSERT_ID()").Scan(&u.ID)
-
+	err = db.QueryRow("SELECT MAX(ID) from users").Scan(&u.ID)
   if err != nil {
       return err
   }

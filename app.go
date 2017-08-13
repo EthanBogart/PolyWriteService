@@ -46,7 +46,6 @@ func (a *App) createUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer r.Body.Close()
-	fmt.Println(u)
 
 	if err := u.createUser(a.DB); err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
