@@ -35,6 +35,7 @@ func (a *App) Run(addr string) {
 
 func (a *App) initializeRoutes() {
 	a.Router.HandleFunc("/users/{id}", a.getUserByID).Methods("GET")
+	a.Router.HandleFunc("/users/email/{email}", a.getUserByEmail).Methods("GET")
 	a.Router.HandleFunc("/users", a.createUser).Methods("POST")
 }
 
@@ -66,6 +67,29 @@ func (a *App) getUserByID(w http.ResponseWriter, r *http.Request) {
 
 	u := user{ID: id}
 	if err := u.getUserByID(a.DB); err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			respondWithError(w, http.StatusNotFound, "User not found")
+		default:
+			respondWithError(w, http.StatusInternalServerError, err.Error())
+		}
+		return
+	}
+
+	respondWithJSON(w, http.StatusOK, u)
+}
+
+func (a *App) getUserByEmail(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+
+	email, exists := vars["email"]
+	if !exists {
+		respondWithError(w, http.StatusBadRequest, "Invalid request, could not find id")
+		return
+	}
+
+	u := user{Email: email}
+	if err := u.getUserByEmail(a.DB); err != nil {
 		switch err {
 		case sql.ErrNoRows:
 			respondWithError(w, http.StatusNotFound, "User not found")

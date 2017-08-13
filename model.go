@@ -16,6 +16,11 @@ func (u *user) getUserByID(db *sql.DB) error {
 		u.ID).Scan(&u.Name, &u.Email)
 }
 
+func (u *user) getUserByEmail(db *sql.DB) error {
+	return db.QueryRow("SELECT name, id FROM users WHERE email=?",
+		u.Email).Scan(&u.Name, &u.ID)
+}
+
 func (u *user) createUser(db *sql.DB) error {
   statement := fmt.Sprintf(
     "INSERT INTO users(name, email) VALUES('%s', '%s')",
