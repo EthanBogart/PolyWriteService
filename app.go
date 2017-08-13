@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"strconv"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
@@ -36,13 +35,33 @@ func (a *App) Run(addr string) {
 
 func (a *App) initializeRoutes() {
 	a.Router.HandleFunc("/users/{id}", a.getUserByID).Methods("GET")
+	a.Router.HandleFunc("/users", a.createUser).Methods("POST")
+}
+
+func (a *App) createUser(w http.ResponseWriter, r *http.Request) {
+	var u user
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&u); err != nil {
+		respondWithError(w, http.StatusBadRequest, "Invalid request")
+		return
+	}
+	defer r.Body.Close()
+	fmt.Println(u)
+
+	if err := u.createUser(a.DB); err != nil {
+		respondWithError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	respondWithJSON(w, http.StatusCreated, u)
 }
 
 func (a *App) getUserByID(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	id, err := strconv.Atoi(vars["id"])
-	if err != nil {
-		respondWithError(w, http.StatusBadRequest, "Invalid ID")
+
+	id, exists := vars["id"]
+	if !exists {
+		respondWithError(w, http.StatusBadRequest, "Invalid request, could not find id")
 		return
 	}
 
