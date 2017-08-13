@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 )
 
 type user struct {
@@ -16,12 +17,19 @@ func (u *user) getUserByID(db *sql.DB) error {
 }
 
 func (u *user) createUser(db *sql.DB) error {
-  err := db.QueryRow(
-    "INSERT INTO user(id, name, email) VALUES(uuid(), $1, $2)",
-    u.Name, u.Email).Scan(&u.ID)
+  statement := fmt.Sprintf(
+    "INSERT INTO users(name, email) VALUES('%s', '%s')",
+    u.Name, u.Email)
+	_, err := db.Exec(statement)
 
   if err != nil {
     return err
+  }
+
+	err = db.QueryRow("SELECT LAST_INSERT_ID()").Scan(&u.ID)
+
+  if err != nil {
+      return err
   }
 
   return nil
