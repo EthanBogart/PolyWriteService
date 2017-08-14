@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"strconv"
 )
 
 type user struct {
@@ -25,19 +26,17 @@ func (u *user) createUser(db *sql.DB) error {
   statement := fmt.Sprintf(
     "INSERT INTO users(name, email) VALUES('%s', '%s')",
     u.Name, u.Email)
-	_, err := db.Exec(statement)
+	res, err := db.Exec(statement)
   if err != nil {
       return err
   }
 
-  if err != nil {
-    return err
-  }
-
-	err = db.QueryRow("SELECT MAX(ID) from users").Scan(&u.ID)
+	lastInsertID, err := res.LastInsertId()
   if err != nil {
       return err
   }
+
+	u.ID = strconv.Itoa(int(lastInsertID))
 
   return nil
 }
