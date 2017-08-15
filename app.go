@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
@@ -59,10 +60,15 @@ func (a *App) createUser(w http.ResponseWriter, r *http.Request) {
 func (a *App) getUserByID(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
-	id, exists := vars["id"]
+	idString, exists := vars["id"]
 	if !exists {
 		respondWithError(w, http.StatusBadRequest, "Invalid request, could not find id")
 		return
+	}
+
+	id, err := strconv.Atoi(idString)
+	if err != nil {
+		respondWithError(w, http.StatusBadRequest, "Invalid id")
 	}
 
 	u := user{ID: id}

@@ -3,11 +3,10 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	"strconv"
 )
 
 type user struct {
-	ID    string    `json:"id"`
+	ID    int    `json:"id"`
 	Name  string `json:"name"`
 	Email string `json:"email"`
 }
@@ -23,20 +22,20 @@ func (u *user) getUserByEmail(db *sql.DB) error {
 }
 
 func (u *user) createUser(db *sql.DB) error {
-  statement := fmt.Sprintf(
-    "INSERT INTO users(name, email) VALUES('%s', '%s')",
-    u.Name, u.Email)
+	statement := fmt.Sprintf(
+		"INSERT INTO users(name, email) VALUES('%s', '%s')",
+		u.Name, u.Email)
 	res, err := db.Exec(statement)
-  if err != nil {
-      return err
-  }
+	if err != nil {
+		return err
+	}
 
 	lastInsertID, err := res.LastInsertId()
-  if err != nil {
-      return err
-  }
+	if err != nil {
+		return err
+	}
 
-	u.ID = strconv.Itoa(int(lastInsertID))
+	u.ID = int(lastInsertID)
 
-  return nil
+	return nil
 }
